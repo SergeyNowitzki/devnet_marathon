@@ -1,0 +1,178 @@
+Building configuration...
+
+Current configuration : 3393 bytes
+!
+upgrade fpd auto
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable password cisco
+!
+no aaa new-model
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip domain name pyneng
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+username cisco password 0 cisco
+!
+redundancy
+!
+!
+ip tcp synwait-time 5
+ip ssh version 2
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ ip address 192.168.100.2 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+!
+router ospf 1
+ network 0.0.0.0 255.255.255.255 area 0
+!
+router bgp 200
+ bgp log-neighbor-changes
+ network 90.1.0.0 mask 255.255.255.0
+ network 90.2.0.0 mask 255.255.255.0
+ network 90.3.0.0 mask 255.255.255.0
+ network 90.4.0.0 mask 255.255.255.0
+ network 90.5.0.0 mask 255.255.255.0
+ network 90.6.0.0 mask 255.255.255.0
+ network 90.7.0.0 mask 255.255.255.0
+ network 90.8.0.0 mask 255.255.255.0
+ network 90.9.0.0 mask 255.255.255.0
+ network 90.10.0.0 mask 255.255.255.0
+ network 90.11.0.0 mask 255.255.255.0
+ neighbor 192.168.100.1 remote-as 100
+ neighbor 192.168.100.1 route-map PREPEND out
+!
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+!
+!
+ip route 90.1.0.0 255.255.255.0 Null0
+ip route 90.2.0.0 255.255.255.0 Null0
+ip route 90.3.0.0 255.255.255.0 Null0
+ip route 90.4.0.0 255.255.255.0 Null0
+ip route 90.5.0.0 255.255.255.0 Null0
+ip route 90.6.0.0 255.255.255.0 Null0
+ip route 90.7.0.0 255.255.255.0 Null0
+ip route 90.8.0.0 255.255.255.0 Null0
+ip route 90.9.0.0 255.255.255.0 Null0
+ip route 90.10.0.0 255.255.255.0 Null0
+ip route 90.11.0.0 255.255.255.0 Null0
+!
+!
+ip prefix-list NET1 seq 5 permit 90.1.0.0/24
+ip prefix-list NET1 seq 10 permit 90.2.0.0/24
+ip prefix-list NET1 seq 15 permit 90.3.0.0/24
+!
+ip prefix-list NET2 seq 5 permit 90.4.0.0/24
+ip prefix-list NET2 seq 10 permit 90.5.0.0/24
+ip prefix-list NET2 seq 15 permit 90.6.0.0/24
+!
+ip prefix-list NET3 seq 5 permit 90.7.0.0/24
+ip prefix-list NET3 seq 10 permit 90.8.0.0/24
+ip prefix-list NET3 seq 15 permit 90.9.0.0/24
+!
+ip prefix-list NET4 seq 5 permit 90.10.0.0/24
+ip prefix-list NET4 seq 10 permit 90.11.0.0/24
+no cdp log mismatch duplex
+!
+route-map PREPEND permit 10
+ match ip address prefix-list NET1
+ set as-path prepend 300 400 400 500
+!
+route-map PREPEND permit 20
+ match ip address prefix-list NET2
+ set as-path prepend 400 500 600
+!
+route-map PREPEND permit 30
+ match ip address prefix-list NET3
+ set as-path prepend 600 500
+!
+route-map PREPEND permit 40
+ match ip address prefix-list NET4
+ set as-path prepend 500 500 500
+!
+!
+!
+control-plane
+!
+!
+!
+mgcp profile default
+!
+!
+!
+gatekeeper
+ shutdown
+!
+alias configure sh do sh
+alias exec ospf sh run | s ^router ospf
+alias exec bri show ip int bri | exc unass
+alias exec id show int desc
+alias exec top sh proc cpu sorted | excl 0.00%__0.00%__0.00%
+alias exec c conf t
+alias exec diff sh archive config differences nvram:startup-config system:running-config
+alias exec desc sh int desc | ex down
+alias exec bgp sh run | s ^router bgp
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ logging synchronous
+ login local
+ transport input ssh
+!
+!
+end

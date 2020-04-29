@@ -1,0 +1,134 @@
+Building configuration...
+
+Current configuration : 2037 bytes
+!
+! Last configuration change at 21:26:59 UTC Fri Apr 24 2020 by cisco
+upgrade fpd auto
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable password cisco
+!
+no aaa new-model
+no ip icmp rate-limit unreachable
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip domain name pyneng
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+username cisco password 0 cisco
+!
+redundancy
+!
+!
+ip tcp synwait-time 5
+ip ssh version 2
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ ip address 192.168.100.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+!
+router ospf 1
+ network 0.0.0.0 255.255.255.255 area 0
+!
+router bgp 100
+ bgp log-neighbor-changes
+ network 10.30.0.0 mask 255.255.255.0
+ network 10.100.0.0 mask 255.255.255.0
+ network 10.200.0.0 mask 255.255.255.0
+ network 192.168.100.0
+ network 192.168.200.0
+ network 192.168.230.0
+ neighbor 192.168.100.2 remote-as 200
+!
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+!
+!
+!
+no cdp log mismatch duplex
+!
+!
+!
+control-plane
+!
+!
+!
+mgcp profile default
+!
+!
+!
+gatekeeper
+ shutdown
+!
+alias configure sh do sh
+alias exec ospf sh run | s ^router ospf
+alias exec bri show ip int bri | exc unass
+alias exec id show int desc
+alias exec top sh proc cpu sorted | excl 0.00%__0.00%__0.00%
+alias exec c conf t
+alias exec diff sh archive config differences nvram:startup-config system:running-config
+alias exec desc sh int desc | ex down
+alias exec bgp sh run | s ^router bgp
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
+line vty 0 4
+ logging synchronous
+ login local
+ transport input telnet ssh
+!
+event manager applet COMM_ACC
+ event cli pattern ".*" sync no skip no occurs 1
+ action 1 syslog msg "User $_cli_username entered $_cli_msg on device $_cli_host "
+!
+end
